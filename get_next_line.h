@@ -6,7 +6,7 @@
 /*   By: eburnet <eburnet@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/15 16:30:57 by eburnet           #+#    #+#             */
-/*   Updated: 2023/11/22 13:15:02 by eburnet          ###   ########.fr       */
+/*   Updated: 2023/12/04 13:33:21 by eburnet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,9 +20,11 @@
 # endif
 
 char	*get_next_line(int fd);
-char	*ft_strchr(const char *s, int c);
-char	*ft_substr(char const *s, unsigned int start, size_t len);
-char	*ft_strdup(const char *s1);
-char	*ft_strjoin(char const *s1, char const *s2);
+char	*ft_read_to_left_str(int fd, char *left_str);
+char	*ft_strchr(char *s, int c);
+char	*ft_strjoin(char *left_str, char *buff);
+size_t	ft_strlen(char *s);
+char	*ft_get_line(char *left_str);
+char	*ft_new_left_str(char *left_str);
 
 #endif
