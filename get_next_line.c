@@ -6,53 +6,78 @@
 /*   By: eburnet <eburnet@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/15 16:30:34 by eburnet           #+#    #+#             */
-/*   Updated: 2023/12/04 13:33:51 by eburnet          ###   ########.fr       */
+/*   Updated: 2023/12/05 15:23:25 by eburnet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-char	*ft_read_to_left_str(int fd, char *left_str)
+char	*read_line(int fd, char **previous_line)
 {
-	char	*buff;
-	int		rd_bytes;
+	char	buffer[BUFFER_SIZE + 1];
+	char	*temp;
+	ssize_t	bytes_read;
 
-	buff = malloc((BUFFER_SIZE + 1) * sizeof(char));
-	if (!buff)
-		return (NULL);
-	rd_bytes = 1;
-	while (!ft_strchr(left_str, '\n') && rd_bytes != 0)
+	bytes_read = read(fd, buffer, BUFFER_SIZE);
+	while (bytes_read > 0)
 	{
-		rd_bytes = read(fd, buff, BUFFER_SIZE);
-		if (rd_bytes == -1)
-		{
-			free(buff);
-			return (NULL);
-		}
-		buff[rd_bytes] = '\0';
-		left_str = ft_strjoin(left_str, buff);
+		buffer[bytes_read] = '\0';
+		temp = ft_strjoin(*previous_line, buffer);
+		free(*previous_line);
+		*previous_line = temp;
+		if (ft_strchr(buffer, '\n'))
+			return (*previous_line);
+		bytes_read = read(fd, buffer, BUFFER_SIZE);
 	}
-	free(buff);
-	return (left_str);
+	if (bytes_read == 0 && (!*previous_line || (*previous_line)[0] == '\0'))
+	{
+		if (*previous_line)
+			free(*previous_line);
+		*previous_line = NULL;
+		return (NULL);
+	}
+	return (*previous_line);
+}
+
+char	*extract_line(char **previous_line)
+{
+	char	*next_newline;
+	char	*line;
+	char	*temp;
+
+	next_newline = ft_strchr(*previous_line, '\n');
+	if (next_newline)
+	{
+		*next_newline = '\0';
+		line = ft_strjoin(*previous_line, "\n");
+		temp = ft_strdup(next_newline + 1);
+		free(*previous_line);
+		*previous_line = temp;
+		return (line);
+	}
+	line = ft_strjoin(*previous_line, "\n");
+	free(*previous_line);
+	*previous_line = NULL;
+	return (line);
 }
 
 char	*get_next_line(int fd)
 {
+	static char	*previous_line;
 	char		*line;
-	static char	*left_str;
 
-	if (fd < 0 || BUFFER_SIZE <= 0)
-		return (0);
-	left_str = ft_read_to_left_str(fd, left_str);
-	if (!left_str)
+	if (fd < 0 || BUFFER_SIZE <= 0 || fd == -1)
 		return (NULL);
-	line = ft_get_line(left_str);
-	left_str = ft_new_left_str(left_str);
+	if (!previous_line)
+		previous_line = ft_strdup("");
+	previous_line = read_line(fd, &previous_line);
+	if (!previous_line || previous_line[0] == '\0')
+		return (NULL);
+	line = extract_line(&previous_line);
 	return (line);
 }
 
-/* 
-#include <fcntl.h>
+/* #include <fcntl.h>
 #include <stdio.h>
 int	main(void)
 {
