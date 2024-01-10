@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: eburnet <eburnet@student.42.fr>            +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/15 16:30:34 by eburnet           #+#    #+#             */
-/*   Updated: 2024/01/10 17:52:19 by eburnet          ###   ########.fr       */
+/*   Updated: 2024/01/10 21:51:49 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,13 @@
 
 char	*read_line(int fd, char **previous_line)
 {
-	char	buffer[BUFFER_SIZE + 1];
+	char	*buffer;
 	char	*temp;
 	ssize_t	bytes_read;
+
+	buffer = (char *)malloc(BUFFER_SIZE + 1);
+	if (!buffer)
+		return (NULL);
 
 	bytes_read = read(fd, buffer, BUFFER_SIZE);
 	while (bytes_read > 0)
@@ -26,9 +30,13 @@ char	*read_line(int fd, char **previous_line)
 		free(*previous_line);
 		*previous_line = temp;
 		if (ft_strchr(buffer, '\n'))
+		{
+			free(buffer);
 			return (*previous_line);
+		}
 		bytes_read = read(fd, buffer, BUFFER_SIZE);
 	}
+	free(buffer);
 	if (bytes_read == 0 && (!*previous_line || (*previous_line)[0] == '\0'))
 	{
 		if (*previous_line)
@@ -77,7 +85,7 @@ char	*get_next_line(int fd)
 	return (line);
 }
 
-#include <fcntl.h>
+/* #include <fcntl.h>
 #include <stdio.h>
 int	main(void)
 {
@@ -89,4 +97,4 @@ int	main(void)
 	printf("%s", get_next_line(fd));
 	close(fd);
 	return (0);
-}
+} */
