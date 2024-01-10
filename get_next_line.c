@@ -6,7 +6,7 @@
 /*   By: eburnet <eburnet@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/15 16:30:34 by eburnet           #+#    #+#             */
-/*   Updated: 2023/12/05 15:23:25 by eburnet          ###   ########.fr       */
+/*   Updated: 2024/01/10 17:52:19 by eburnet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ char	*extract_line(char **previous_line)
 		*previous_line = temp;
 		return (line);
 	}
-	line = ft_strjoin(*previous_line, "\n");
+	line = ft_strjoin(*previous_line, "");
 	free(*previous_line);
 	*previous_line = NULL;
 	return (line);
@@ -77,17 +77,16 @@ char	*get_next_line(int fd)
 	return (line);
 }
 
-/* #include <fcntl.h>
+#include <fcntl.h>
 #include <stdio.h>
 int	main(void)
 {
-	int fd = open("text.txt", O_RDONLY);
+	int fd = open("gnlTester/files/43_with_nl", O_RDONLY);
 	char *result;
-	while ((result = get_next_line(fd)) != NULL)
-	{
-		printf("%s", result);
-		free(result);
-	}
+	printf("%s", get_next_line(fd));
+	printf("%s", get_next_line(fd));
+	printf("%s", get_next_line(fd));
+	printf("%s", get_next_line(fd));
 	close(fd);
 	return (0);
-} */
+}
