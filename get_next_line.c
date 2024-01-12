@@ -6,102 +6,102 @@
 /*   By: eburnet <eburnet@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/11 12:06:05 by eburnet           #+#    #+#             */
-/*   Updated: 2024/01/11 16:14:04 by eburnet          ###   ########.fr       */
+/*   Updated: 2024/01/12 10:58:51 by eburnet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-char	*get_line(char *left_str)
+char	*read_and_find(int fd, char *previous_line)
+{
+	char	*buff;
+	int		bytes_read;
+
+	buff = malloc(sizeof(char) * (BUFFER_SIZE + 1));
+	if (buff == NULL)
+		return (NULL);
+	bytes_read = 1;
+	while (!ft_strchr(previous_line, '\n') && bytes_read != 0)
+	{
+		bytes_read = read(fd, buff, BUFFER_SIZE);
+		if (bytes_read == -1)
+		{
+			free(buff);
+			return (NULL);
+		}
+		buff[bytes_read] = '\0';
+		previous_line = ft_strjoin(previous_line, buff);
+	}
+	free(buff);
+	return (previous_line);
+}
+
+char	*extract_line(char *previous_line)
 {
 	int		i;
 	char	*str;
 
 	i = 0;
-	if (!left_str[i])
+	if (previous_line[i] == 0)
 		return (NULL);
-	while (left_str[i] && left_str[i] != '\n')
+	while (previous_line[i] != 0 && previous_line[i] != '\n')
 		i++;
-	str = (char *)malloc(sizeof(char) * (i + 2));
-	if (!str)
+	str = malloc(sizeof(char *) * (i + 2));
+	if (str == NULL)
 		return (NULL);
 	i = 0;
-	while (left_str[i] && left_str[i] != '\n')
+	while (previous_line[i] != 0 && previous_line[i] != '\n')
 	{
-		str[i] = left_str[i];
+		str[i] = previous_line[i];
 		i++;
 	}
-	if (left_str[i] == '\n')
+	if (previous_line[i] == '\n')
 	{
-		str[i] = left_str[i];
+		str[i] = previous_line[i];
 		i++;
 	}
 	str[i] = '\0';
 	return (str);
 }
 
-char	*new_left_str(char *left_str)
+char	*update_line(char *previous_line)
 {
 	int		i;
 	int		j;
 	char	*str;
 
 	i = 0;
-	while (left_str[i] && left_str[i] != '\n')
+	j = 0;
+	while (previous_line[i] != 0 && previous_line[i] != '\n')
 		i++;
-	if (!left_str[i])
+	if (previous_line[i] == 0)
 	{
-		free(left_str);
+		free(previous_line);
 		return (NULL);
 	}
-	str = (char *)malloc(sizeof(char) * (ft_strlen(left_str) - i + 1));
-	if (!str)
+	str = malloc(sizeof(char *) * (ft_strlen(previous_line) - i + 1));
+	if (str == NULL)
 		return (NULL);
 	i++;
-	j = 0;
-	while (left_str[i])
-		str[j++] = left_str[i++];
+	while (previous_line[i] != 0)
+		str[j++] = previous_line[i++];
 	str[j] = '\0';
-	free(left_str);
+	free(previous_line);
 	return (str);
-}
-
-char	*read_to_left_str(int fd, char *left_str)
-{
-	char	*buff;
-	int		rd_bytes;
-
-	buff = malloc((BUFFER_SIZE + 1) * sizeof(char));
-	if (!buff)
-		return (NULL);
-	rd_bytes = 1;
-	while (!ft_strchr(left_str, '\n') && rd_bytes != 0)
-	{
-		rd_bytes = read(fd, buff, BUFFER_SIZE);
-		if (rd_bytes == -1)
-		{
-			free(buff);
-			return (NULL);
-		}
-		buff[rd_bytes] = '\0';
-		left_str = ft_strjoin(left_str, buff);
-	}
-	free(buff);
-	return (left_str);
 }
 
 char	*get_next_line(int fd)
 {
 	char		*line;
-	static char	*left_str;
+	static char	*previous_line;
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (0);
-	left_str = read_to_left_str(fd, left_str);
-	if (!left_str)
+	previous_line = read_and_find(fd, previous_line);
+	if (previous_line == NULL)
 		return (NULL);
-	line = get_line(left_str);
-	left_str = new_left_str(left_str);
+	line = extract_line(previous_line);
+	previous_line = update_line(previous_line);
 	return (line);
 }
 
