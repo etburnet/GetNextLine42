@@ -6,7 +6,7 @@
 /*   By: eburnet <eburnet@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/11 12:06:05 by eburnet           #+#    #+#             */
-/*   Updated: 2024/01/12 10:58:51 by eburnet          ###   ########.fr       */
+/*   Updated: 2024/01/13 11:37:10 by eburnet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,13 +105,13 @@ char	*get_next_line(int fd)
 	return (line);
 }
 
-/* #include <fcntl.h>
+#include <fcntl.h>
 #include <stdio.h>
 int	main(void)
 {
 	char *tamere;
 
-	int fd = open("bible.txt", O_RDONLY);
+	int fd = open("text.txt", O_RDONLY);
 	tamere = get_next_line(fd);
 	while (tamere != NULL)
 	{
@@ -120,4 +120,4 @@ int	main(void)
 	}
 	close(fd);
 	return (0);
-} */
+}
