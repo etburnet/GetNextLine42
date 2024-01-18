@@ -6,7 +6,7 @@
 /*   By: eburnet <eburnet@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/14 14:21:56 by eburnet           #+#    #+#             */
-/*   Updated: 2024/01/18 12:04:05 by eburnet          ###   ########.fr       */
+/*   Updated: 2024/01/18 15:01:09 by eburnet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,14 +36,14 @@ char	*ft_make_line_remove(char *buff)
 	return (line);
 }
 
-void	ft_read(int fd, char *buff)
+char	*ft_read(int fd, char *buff)
 {
 	int		i;
 	char	*temp;
 	
 	temp = malloc(sizeof (char *) * BUFFER_SIZE + 1);
 	if (!temp)
-		return ;
+		return NULL;
 	while (ft_strchr(buff, '\n') == 0)
 	{
 		i = read(fd, temp, BUFFER_SIZE);
@@ -53,44 +53,20 @@ void	ft_read(int fd, char *buff)
 		if (ft_strchr(buff, '\n') != 0)
 			ft_make_line_remove(buff);
 	}
-	return ;
+	return NULL;
 }
 
 char	*get_next_line(int fd)
 {
-	static char 	*buff;
+	static char	*buff;
 	ft_read(fd, buff);
-}
+	ft_make_line_remove(buff);
+	return ();
+} 
 
 #include <fcntl.h>
-void	main()
+int	main()
 {
 	int	fd = open("42_with_nl", O_RDONLY);
 	printf("%s", get_next_line(fd));
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* 	
-
-	int		j;
-
-	
-	while (ft_backspace(buff, '\n') != NULL)
-	{
-		i = read(fd, temp, BUFFER_SIZE);
-		buff = ft_strjoin(buff, temp);
-	}
-	return(buff); */
