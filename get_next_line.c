@@ -5,68 +5,95 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: eburnet <eburnet@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/01/14 14:21:56 by eburnet           #+#    #+#             */
-/*   Updated: 2024/01/18 15:01:09 by eburnet          ###   ########.fr       */
+/*   Created: 2024/02/08 17:14:01 by eburnet           #+#    #+#             */
+/*   Updated: 2024/02/16 10:48:36 by eburnet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-#include <stdio.h>
 
-char	*ft_make_line_remove(char *buff)
+char	*ft_read(int fd, char *storage, char *buff)
 {
-	int		i;
-	int		j;
-	char	*line;
-	char	*rest;
+	char	*temp;
+	ssize_t	bytes_read;
 
-	while (buff[i] != '\0' && buff[i] != '\n')
-		i++;
-	line = malloc(sizeof(char) * i + 1);
-	while (j <= i)
+	bytes_read = 1;
+	while (bytes_read != 0)
 	{
-		line[j] = buff[j];
-		j++;
+		bytes_read = read(fd, buff, BUFFER_SIZE);
+		if (bytes_read <= 0)
+			break ;
+		buff[bytes_read] = '\0';
+		if (!storage)
+			storage = ft_strdup("");
+		temp = storage;
+		storage = ft_strjoin(temp, buff);
+		free(temp);
+		temp = NULL;
+		if (ft_strchr(buff, '\n') != NULL)
+			break ;
 	}
-	*line = '\0';
-	rest = buff + i;
-	while (*rest != '\0')
-		*buff++ = *rest++;
-	*buff = '\0';
-	return (line);
+	return (storage);
 }
 
-char	*ft_read(int fd, char *buff)
+char	*read_next_line(char *line)
 {
-	int		i;
-	char	*temp;
-	
-	temp = malloc(sizeof (char *) * BUFFER_SIZE + 1);
-	if (!temp)
-		return NULL;
-	while (ft_strchr(buff, '\n') == 0)
+	char	*storage;
+	int		pos;
+	int		line_len;
+
+	line_len = ft_strlen(line);
+	pos = 0;
+	while (line[pos] != '\n' && line[pos] != '\0')
+		pos++;
+	if (pos == 0 && line[pos] != '\n')
+		return (NULL);
+	storage = ft_substr(line, pos + 1, line_len - pos - 1);
+	if (line[pos] != '\0')
+		line[pos + 1] = '\0';
+	if (storage == NULL)
 	{
-		i = read(fd, temp, BUFFER_SIZE);
-		buff = ft_strjoin(buff, temp);
-		if (i < BUFFER_SIZE)
-			ft_make_line_remove(buff);
-		if (ft_strchr(buff, '\n') != 0)
-			ft_make_line_remove(buff);
+		free(line);
+		return (NULL);
 	}
-	return NULL;
+	return (storage);
 }
 
 char	*get_next_line(int fd)
 {
-	static char	*buff;
-	ft_read(fd, buff);
-	ft_make_line_remove(buff);
-	return ();
-} 
+	static char	*storage;
+	char		*line;
+	char		*buff;
 
-#include <fcntl.h>
-int	main()
-{
-	int	fd = open("42_with_nl", O_RDONLY);
-	printf("%s", get_next_line(fd));
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (NULL);
+	buff = malloc(sizeof(char) * (BUFFER_SIZE + 1));
+	if (!buff)
+		return (NULL);
+	line = ft_read(fd, storage, buff);
+	free(buff);
+	if (line == NULL)
+	{
+		return (NULL);
+	}
+	storage = read_next_line(line);
+	if (storage == NULL)
+	{
+		free(line);
+		return (NULL);
+	}
+	return (line);
 }
+
+/* #include <fcntl.h>
+#include <stdio.h>
+int	main(void)
+{
+	int		fd;
+
+	fd = open("42_with_nl", O_RDONLY);
+	printf("%s", get_next_line(fd));
+	printf("%s", get_next_line(fd));
+	close(fd);
+	return (0);
+} */
